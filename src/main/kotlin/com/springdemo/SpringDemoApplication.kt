@@ -16,37 +16,46 @@ fun main(args: Array<String>) {
 }
 
 @RestController
-class MessageResource(val service: MessageService) {
+class CatResource(val service: CatService) {
 
     @GetMapping
-    fun index(): List<Message> = service.findMessages()
+    fun index(): List<Cat> = service.findCats()
 
     @GetMapping("/{id}")
-    fun index(@PathVariable id: String):List<Message> = service.findMessagesById(id)
+    fun index(@PathVariable id: String): List<Cat> = service.findCatsById(id)
 
 
     @PostMapping
-    fun post(@RequestBody message: Message) {
-        service.post(message)
+    fun post(@RequestBody cat: Cat) {
+        service.post(cat)
     }
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: String) = service.deleteCatById(id)
 }
 
 @Service
-class MessageService(val db: JdbcTemplate) {
+class CatService(val db: JdbcTemplate) {
 
-    fun findMessages(): List<Message> = db.query("select * from messages") { rs, _ ->
-        Message(rs.getString("id"), rs.getString("text"))
+    fun findCats(): List<Cat> = db.query("select * from cats") { rs, _ ->
+        Cat(rs.getString("id"), rs.getString("name"), rs.getString("image"), rs.getString("description"))
     }
 
-    fun findMessagesById(id: String): List<Message> = db.query("select * from messages where id = ?", id) { rs, _ ->
-        Message(rs.getString("id"), rs.getString("text"))
+    fun findCatsById(id: String): List<Cat> = db.query("select * from cats where id = ?", id) { rs, _ ->
+        Cat(rs.getString("id"), rs.getString("name"), rs.getString("image"), rs.getString("description"))
     }
 
-    fun post(message: Message) {
-        db.update("insert into messages values (?, ? )", message.id?:message.text.uuid(), message.text)
+    fun post(cat: Cat) {
+        db.update(
+            "insert into cats values (?, ?, ?, ? )", cat.id ?: cat.name.uuid(), cat.name, cat.image, cat.description
+        )
+    }
+
+    fun deleteCatById(id: String) {
+        db.update("DELETE FROM cats WHERE id = ?", id)
     }
 }
 
-data class Message(val id: String?, val text: String)
+data class Cat(val id: String?, val name: String, val image: String, val description: String)
 
-fun String.uuid():String = UUID.nameUUIDFromBytes(this.encodeToByteArray()).toString()
+fun String.uuid(): String = UUID.nameUUIDFromBytes(this.encodeToByteArray()).toString()
