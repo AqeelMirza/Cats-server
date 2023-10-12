@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
 @RestController
 class CatResource(val service: CatService) {
 
-    @GetMapping
+    @GetMapping(path = ["/allCats"])
     fun index(): List<Cat> = service.findCats()
 
     @GetMapping("/{id}")
