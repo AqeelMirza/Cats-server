@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
 class CatResource(val service: CatService) {
 
     @GetMapping(path = ["/allCats"])
-    fun index(): List<Cat> = service.findCats()
+    fun index(): List<Cat> = service.getAllCats()
 
     @GetMapping("/{id}")
     fun index(@PathVariable id: String): List<Cat> = service.findCatsById(id)
@@ -37,7 +37,7 @@ class CatResource(val service: CatService) {
 @Service
 class CatService(val db: JdbcTemplate) {
 
-    fun findCats(): List<Cat> {
+    fun getAllCats(): List<Cat> {
         val fromDb = db.query("select * from cats") { rs, _ ->
             Cat(rs.getString("id"), rs.getString("name"), rs.getString("image"), rs.getString("description"))
         }
